@@ -45,7 +45,6 @@ public class SlidingActivityHelper {
 		int background = a.getResourceId(0, 0);
 
 		if (mEnableSlide) {
-			mSlidingMenu.setFitsSysWindows(true);
 			// move everything into the SlidingMenu
 			ViewGroup decor = (ViewGroup) mActivity.getWindow().getDecorView();
 			ViewGroup decorChild = (ViewGroup) decor.getChildAt(0);
@@ -65,7 +64,7 @@ public class SlidingActivityHelper {
 				mViewAbove.setBackgroundResource(background);
 			}
 			mSlidingMenu.setContent(mViewAbove);
-			parent.addView(mSlidingMenu, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			parent.addView(mSlidingMenu, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
 	}
 

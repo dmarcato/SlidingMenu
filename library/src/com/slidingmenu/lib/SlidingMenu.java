@@ -4,25 +4,21 @@ import java.lang.reflect.Method;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.os.ParcelableCompat;
-import android.support.v4.os.ParcelableCompatCreatorCallbacks;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.RelativeLayout;
 
 import com.slidingmenu.lib.CustomViewAbove.OnPageChangeListener;
@@ -37,6 +33,8 @@ public class SlidingMenu extends RelativeLayout {
 	private OnOpenListener mOpenListener;
 	private OnCloseListener mCloseListener;
 
+    //private boolean mSlidingEnabled;
+
 	public static void attachSlidingMenu(Activity activity, SlidingMenu sm, boolean slidingTitle) {
 
 		if (sm.getParent() != null)
@@ -47,7 +45,6 @@ public class SlidingMenu extends RelativeLayout {
 			// get the window background
 			TypedArray a = activity.getTheme().obtainStyledAttributes(new int[] {android.R.attr.windowBackground});
 			int background = a.getResourceId(0, 0);
-			sm.setFitsSysWindows(true);
 			// move everything into the SlidingMenu
 			ViewGroup decor = (ViewGroup) activity.getWindow().getDecorView();
 			ViewGroup decorChild = (ViewGroup) decor.getChildAt(0);
@@ -59,17 +56,10 @@ public class SlidingMenu extends RelativeLayout {
 		} else {
 			// take the above view out of
 			ViewGroup content = (ViewGroup) activity.findViewById(Window.ID_ANDROID_CONTENT);
+			View above = content.getChildAt(0);
 			content.removeAllViews();
-			content.addView(sm, LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-			//			if (parent != null) {
-			//				parent.removeView(mViewAbove);
-			//			}
-			//			// save people from having transparent backgrounds
-			//			if (mViewAbove.getBackground() == null) {
-			//				mViewAbove.setBackgroundResource(background);
-			//			}
-			//			mSlidingMenu.setViewAbove(mViewAbove);
-			//			parent.addView(mSlidingMenu, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			sm.setContent(above);
+			content.addView(sm, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		}
 	}
 
@@ -260,6 +250,10 @@ public class SlidingMenu extends RelativeLayout {
 		params.setMargins(left, top, i, bottom);
 	}
 
+	/**
+	 * 
+	 * @param i The width the Sliding Menu will open to in pixels
+	 */
 	@SuppressWarnings("deprecation")
 	public void setBehindWidth(int i) {
 		int width;
@@ -276,6 +270,15 @@ public class SlidingMenu extends RelativeLayout {
 			width = display.getWidth();
 		}
 		setBehindOffset(width-i);
+	}
+	
+	/**
+	 * 
+	 * @param res A resource ID which points to the width the Sliding Menu will open to 
+	 */
+	public void setBehindWidthRes(int res) {
+		int i = (int) getContext().getResources().getDimension(res);
+		setBehindWidth(i);
 	}
 
 	/**
@@ -369,12 +372,12 @@ public class SlidingMenu extends RelativeLayout {
 	}
 
 	public void setOnOpenListener(OnOpenListener listener) {
-		mViewAbove.setOnOpenListener(listener);
+		//mViewAbove.setOnOpenListener(listener);
 		mOpenListener = listener;
 	}
 
 	public void setOnCloseListener(OnCloseListener listener) {
-		mViewAbove.setOnCloseListener(listener);
+		//mViewAbove.setOnCloseListener(listener);
 		mCloseListener = listener;
 	}
 
@@ -386,7 +389,7 @@ public class SlidingMenu extends RelativeLayout {
 		mViewAbove.setOnClosedListener(listener);
 	}
 
-	public static class SavedState extends BaseSavedState {
+	private static class SavedState extends BaseSavedState {
 		boolean mBehindShowing;
 
 		public SavedState(Parcelable superState) {
@@ -398,6 +401,7 @@ public class SlidingMenu extends RelativeLayout {
 			out.writeBooleanArray(new boolean[]{mBehindShowing});
 		}
 
+		/*
 		public static final Parcelable.Creator<SavedState> CREATOR
 		= ParcelableCompat.newCreator(new ParcelableCompatCreatorCallbacks<SavedState>() {
 
@@ -416,18 +420,19 @@ public class SlidingMenu extends RelativeLayout {
 			in.readBooleanArray(showing);
 			mBehindShowing = showing[0];
 		}
+		*/
 	}
 
-
-	public Parcelable onSaveInstanceState() {
+	@Override
+	protected Parcelable onSaveInstanceState() {
 		Parcelable superState = super.onSaveInstanceState();
 		SavedState ss = new SavedState(superState);
 		ss.mBehindShowing = isBehindShowing();
 		return ss;
 	}
 
-
-	public void onRestoreInstanceState(Parcelable state) {
+	@Override
+	protected void onRestoreInstanceState(Parcelable state) {
 		if (!(state instanceof SavedState)) {
 			super.onRestoreInstanceState(state);
 			return;
@@ -443,75 +448,16 @@ public class SlidingMenu extends RelativeLayout {
 		}
 	}
 
-	private static final int LOW_DPI_STATUS_BAR_HEIGHT = 19;
-	private static final int MEDIUM_DPI_STATUS_BAR_HEIGHT = 25;
-	private static final int HIGH_DPI_STATUS_BAR_HEIGHT = 38;
-	private static final int XHIGH_DPI_STATUS_BAR_HEIGHT = 50;
+	@Override
+	protected boolean fitSystemWindows(Rect insets) {
 
-	/**
-	 * Find the height of the current system status bar.
-	 * If this cannot be determined rely on a default.
-	 */
-	private static final int mHeightId = Resources.getSystem()
-			.getIdentifier("status_bar_height", "dimen", "android");
-	private static final int mBarHeight;
+        int leftPadding = getPaddingLeft() + insets.left;
+        int rightPadding = getPaddingRight() + insets.right;
+        int topPadding = insets.top;
+        int bottomPadding = insets.bottom;
+        this.setPadding(leftPadding, topPadding, rightPadding, bottomPadding);
 
-	// Try to retrieve the system's status bar height
-	// by querying the system's resources.
-	static {
-
-		int mHeight = -1;
-
-		if (mHeightId != 0) {
-			try {
-				mHeight = Resources.getSystem().getDimensionPixelSize(mHeightId);
-			} catch(Resources.NotFoundException e) { }
-		}
-
-		mBarHeight = mHeight;
-	};
-
-	public void setFitsSysWindows(boolean b) {
-		try {
-			Class<?> cls = Display.class;
-			Class<?>[] parameterTypes = { boolean.class };
-			Method method = cls.getMethod("setFitsSystemWindows", parameterTypes);
-			method.invoke(this, b);
-		} catch (Exception e) {
-			int topMargin = 0;
-			if (b) {
-				topMargin = getStatusBarHeight();
-			}
-			RelativeLayout.LayoutParams params = ((RelativeLayout.LayoutParams)mViewBehind.getLayoutParams());
-			int bottom = params.bottomMargin;
-			int left = params.leftMargin;
-			int right = params.rightMargin;
-			params.setMargins(left, topMargin, right, bottom);
-		}
-	}
-
-	private int getStatusBarHeight() {
-		if (mBarHeight >= 0) return mBarHeight;
-		DisplayMetrics displayMetrics = new DisplayMetrics();
-		((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getMetrics(displayMetrics);
-		int statusBarHeight = 0;
-		switch (displayMetrics.densityDpi) {
-		case DisplayMetrics.DENSITY_XHIGH:
-			statusBarHeight = XHIGH_DPI_STATUS_BAR_HEIGHT;
-			break;
-		case DisplayMetrics.DENSITY_HIGH:
-			statusBarHeight = HIGH_DPI_STATUS_BAR_HEIGHT;
-			break;
-		case DisplayMetrics.DENSITY_MEDIUM:
-			statusBarHeight = MEDIUM_DPI_STATUS_BAR_HEIGHT;
-			break;
-		case DisplayMetrics.DENSITY_LOW:
-			statusBarHeight = LOW_DPI_STATUS_BAR_HEIGHT;
-			break;
-		default:
-			statusBarHeight = MEDIUM_DPI_STATUS_BAR_HEIGHT;
-		}
-		return statusBarHeight;
+		return super.fitSystemWindows(insets);
 	}
 
 }
