@@ -56,7 +56,11 @@ public class SlidingActivity extends SherlockActivity implements SlidingActivity
 	 */
 	@Override
 	public void setContentView(int id) {
-		setContentView(getLayoutInflater().inflate(id, null));
+//		setContentView(getLayoutInflater().inflate(id, null));
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		View v = getLayoutInflater().inflate(id, null);
+		super.setContentView(v, params);
+		mHelper.registerAboveContentView(v, params);
 	}
 
 	/* (non-Javadoc)
@@ -64,7 +68,10 @@ public class SlidingActivity extends SherlockActivity implements SlidingActivity
 	 */
 	@Override
 	public void setContentView(View v) {
-		setContentView(v, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+//		setContentView(v, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+		super.setContentView(v, params);
+		mHelper.registerAboveContentView(v, params);
 	}
 
 	/* (non-Javadoc)
