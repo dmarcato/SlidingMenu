@@ -1,5 +1,6 @@
 package com.slidingmenu.lib.app;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
@@ -14,6 +15,12 @@ import com.slidingmenu.lib.SlidingMenu;
 public class SlidingListActivity extends SherlockListActivity implements SlidingActivityBase {
 
 	private SlidingActivityHelper mHelper;
+	
+	private Context themedContext;
+	
+	public Context getThemedContext() {
+		return (themedContext == null) ? this : themedContext;
+	}
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -95,7 +102,8 @@ public class SlidingListActivity extends SherlockListActivity implements Sliding
 	public void setBehindContentView(int id, int theme) {
 		LayoutInflater inflater = getLayoutInflater();
 		if (theme != 0) {
-			inflater = inflater.cloneInContext(new ContextThemeWrapper(this, theme));
+			themedContext = new ContextThemeWrapper(this, theme);
+			inflater = inflater.cloneInContext(themedContext);
 		}
 		setBehindContentView(inflater.inflate(id, null));
 	}
@@ -111,6 +119,9 @@ public class SlidingListActivity extends SherlockListActivity implements Sliding
 	 * @see com.slidingmenu.lib.app.SlidingActivityBase#setBehindContentView(android.view.View, android.view.ViewGroup.LayoutParams)
 	 */
 	public void setBehindContentView(View v, LayoutParams params) {
+		if (v.getBackground() == null && themedContext != null) {
+			mHelper.setBehindBackground(v, themedContext);
+		}
 		mHelper.setBehindContentView(v, params);
 	}
 

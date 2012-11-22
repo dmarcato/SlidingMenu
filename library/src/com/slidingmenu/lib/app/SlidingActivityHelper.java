@@ -1,7 +1,9 @@
 package com.slidingmenu.lib.app;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -213,6 +215,16 @@ public class SlidingActivityHelper {
 			return true;
 		}
 		return false;
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void setBehindBackground(View v, Context themedContext) {
+		TypedArray arr = themedContext.obtainStyledAttributes(new int[] {
+			android.R.attr.windowBackground
+		});
+		Drawable d = arr.getDrawable(0);
+		v.setBackgroundDrawable(d);
+		arr.recycle();
 	}
 
 }

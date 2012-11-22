@@ -1,5 +1,6 @@
 package com.slidingmenu.lib.app;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
@@ -13,6 +14,12 @@ import com.slidingmenu.lib.SlidingMenu;
 public abstract class SlidingMapActivity extends SherlockMapActivity implements SlidingActivityBase {
 
 	private SlidingActivityHelper mHelper;
+	
+	private Context themedContext;
+	
+	public Context getThemedContext() {
+		return (themedContext == null) ? this : themedContext;
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +78,9 @@ public abstract class SlidingMapActivity extends SherlockMapActivity implements 
 	}
 
 	public void setBehindContentView(View v, LayoutParams params) {
+		if (v.getBackground() == null && themedContext != null) {
+			mHelper.setBehindBackground(v, themedContext);
+		}
 		mHelper.setBehindContentView(v, params);
 	}
 
