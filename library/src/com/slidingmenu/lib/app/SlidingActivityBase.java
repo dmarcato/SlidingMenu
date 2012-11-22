@@ -31,8 +31,9 @@ public interface SlidingActivityBase {
 	 * to the behind view.
 	 *
 	 * @param layoutResID Resource ID to be inflated.
+	 * @param theme Resource ID for the new theme, 0 to keep unchanged.
 	 */
-	public void setBehindContentView(int layoutResID);
+	public void setBehindContentView(int layoutResID, int theme);
 
 	/**
 	 * Gets the SlidingMenu associated with this activity.

@@ -1,15 +1,16 @@
 package com.slidingmenu.lib.app;
 
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
 import com.actionbarsherlock.app.SherlockMapActivity;
 import com.slidingmenu.lib.SlidingMenu;
 
-
-public abstract class SlidingMapActivity extends SherlockMapActivity {
+public abstract class SlidingMapActivity extends SherlockMapActivity implements SlidingActivityBase {
 
 	private SlidingActivityHelper mHelper;
 
@@ -57,8 +58,12 @@ public abstract class SlidingMapActivity extends SherlockMapActivity {
 		mHelper.registerAboveContentView(v, params);
 	}
 
-	public void setBehindContentView(int id) {
-		setBehindContentView(getLayoutInflater().inflate(id, null));
+	public void setBehindContentView(int id, int theme) {
+		LayoutInflater inflater = getLayoutInflater();
+		if (theme != 0) {
+			inflater = inflater.cloneInContext(new ContextThemeWrapper(this, theme));
+		}
+		setBehindContentView(inflater.inflate(id, null));
 	}
 
 	public void setBehindContentView(View v) {

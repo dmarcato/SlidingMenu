@@ -1,7 +1,9 @@
 package com.slidingmenu.lib.app;
 
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ListView;
@@ -90,8 +92,12 @@ public class SlidingListActivity extends SherlockListActivity implements Sliding
 	/* (non-Javadoc)
 	 * @see com.slidingmenu.lib.app.SlidingActivityBase#setBehindContentView(int)
 	 */
-	public void setBehindContentView(int id) {
-		setBehindContentView(getLayoutInflater().inflate(id, null));
+	public void setBehindContentView(int id, int theme) {
+		LayoutInflater inflater = getLayoutInflater();
+		if (theme != 0) {
+			inflater = inflater.cloneInContext(new ContextThemeWrapper(this, theme));
+		}
+		setBehindContentView(inflater.inflate(id, null));
 	}
 
 	/* (non-Javadoc)
