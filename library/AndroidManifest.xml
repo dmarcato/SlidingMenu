@@ -8,11 +8,4 @@
         android:minSdkVersion="5"
         android:targetSdkVersion="17" />
 
-    <application>
-        <activity android:name=".SlidingMenuActivity" />
-        <activity android:name=".SlidingFragmentActivity" />
-        <activity android:name=".SlidingListActivity" />
-        <activity android:name=".SlidingPreferenceActivity" />
-    </application>
-
 </manifest>
